@@ -1,0 +1,49 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+/dist/
+/api
+
+# Go test & coverage
+*.test
+*.out
+coverage.html
+coverage.txt
+
+# Delve debug binaries
+__debug_bin*
+
+# Dependencies
+vendor/
+
+# Go workspace
+go.work
+go.work.sum
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo
+.vscode/*
+!.vscode/launch.json
+
+# Temporary files
+tmp/
+temp/
