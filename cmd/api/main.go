@@ -3,7 +3,10 @@ package main
 import (
 	"log"
 	"my-go-project/config"
+	"my-go-project/internal/server"
+	"my-go-project/pkg/db/postgres"
 	"my-go-project/pkg/logger"
+	"my-go-project/pkg/redis"
 	"my-go-project/pkg/utils"
 	"os"
 
@@ -35,6 +38,18 @@ func main() {
 	appLogger.DPanic()
 	appLogger.Infof("AppVersion: %s, LogLevel: %s, Mode: %s, SSL: %v", cfg.Server.AppVersion, cfg.Logger.Level, cfg.Server.Mode, cfg.Server.SSL)
 
+	psqlDB, err := postgres.NewPsqlDB(cfg)
+	if err != nil {
+		appLogger.Fatalf("Postgresql init: %s", err)
+	} else {
+		appLogger.Infof("Postgres connected, Status: %#v", psqlDB.Stats())
+	}
+	defer psqlDB.Close()
+
+	redisClient := redis.NewRedisClient(cfg)
+	defer redisClient.Close()
+	appLogger.Info("Redis connected")
+
 	jaegerCfgInstance := jaegercfg.Configuration{
 		ServiceName: cfg.Jaeger.ServiceName,
 		Sampler: &jaegercfg.SamplerConfig{
@@ -60,4 +75,8 @@ func main() {
 	defer closer.Close()
 	appLogger.Info("Opentracing connected")
 
+	s := server.NewServer(cfg, psqlDB, redisClient, appLogger)
+	if err := s.Run(); err != nil {
+		appLogger.Fatalf("Server init: %s", err)
+	}
 }
