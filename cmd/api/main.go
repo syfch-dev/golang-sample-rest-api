@@ -79,4 +79,5 @@ func main() {
 	if err := s.Run(); err != nil {
 		appLogger.Fatalf("Server init: %s", err)
 	}
+
 }

@@ -5,6 +5,7 @@ import (
 	"my-go-project/internal/auth"
 	"my-go-project/internal/models"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
@@ -46,4 +47,16 @@ func (r *authRepo) FindByEmail(ctx context.Context, user *models.User) (*models.
 	}
 	return foundUser, nil
 
+}
+
+// Get user by id
+func (r *authRepo) GetByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "authRepo.GetByID")
+	defer span.Finish()
+
+	user := &models.User{}
+	if err := r.db.QueryRowxContext(ctx, getUserQuery, userID).StructScan(user); err != nil {
+		return nil, errors.Wrap(err, "authRepo.GetByID.QueryRowxContext")
+	}
+	return user, nil
 }
